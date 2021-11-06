@@ -86,7 +86,7 @@ class PerrotifyApp(IPerrotify):
 
 
         results = sp.current_user_top_tracks(time_range=termino, limit=5)
-        
+
         return results
 
 class Cliente:
