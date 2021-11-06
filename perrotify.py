@@ -3,6 +3,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import sqlite3
 from interfaces import *
+import configparser
 
 
 class Usuario:
@@ -23,26 +24,6 @@ class Usuario:
     def get_songs(self):
         return self.canciones
 
-
-class Cancion:
-
-    def __init__(self, nombre_cancion, artista) -> None:
-        self.nombre_cancion = nombre_cancion
-        self.artista = artista
-
-    def set_nombre_cancion(self, nombre_cancion):
-        self.nombre_cancion = nombre_cancion
-
-    def get_nombre_cancion(self):
-        return self.nombre_cancion
-
-    def set_artista(self, nombre_artista):
-        self.artista = nombre_artista
-
-    def get_artista(self):
-        return self.artista
-
-
 class SqlLite(IBaseDatos):
 
     def __init__(self) -> None:
@@ -60,10 +41,10 @@ class SqlLite(IBaseDatos):
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
 
-    def insertar_canciones(self, id_usuario, cancion_nombre):
+    def insertar_canciones(self, id_usuario, cancion_nombre, artista):
         # Ejecutar query INSERT pasandole 'id_usuario' y 'cancion_nombre' como argumento.
-        self.cursor.execute("insert into cancion(nombreCancion, idUsuario) values ('{}', {})".format(
-            cancion_nombre, id_usuario))
+        self.cursor.execute("insert into cancion(idUsuario, nombreCancion, artista) values ({}, '{}', '{}')".format(
+            id_usuario, cancion_nombre, artista))
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
 
@@ -79,7 +60,7 @@ class SqlLite(IBaseDatos):
     def seleccionar_canciones_usuario(self, id_usuario):
         # Ejecutar query SELECT pasandole 'id_usuario' como argumento.
         self.cursor.execute(
-            "select u.nombre, c.nombreCancion from usuario as u inner join cancion as c on u.idUsuario = c.idUsuario where c.idUsuario = {}".format(id_usuario))
+            "select u.nombre, c.nombreCancion, c.artista from usuario as u inner join cancion as c on u.idUsuario = c.idUsuario where c.idUsuario = {}".format(id_usuario))
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
         # Mostrar nuestro SELECT
@@ -88,55 +69,39 @@ class SqlLite(IBaseDatos):
 
 class PerrotifyApp(IPerrotify):
 
+    def __init__(self) -> None:
+        # Leer credenciales del archivo credenciales.ini
+        self.leer = configparser.ConfigParser()
+        self.leer.read("credenciales.ini")
+
+        self.cliente_ID = self.leer.get("Credenciales", "client_id")
+        self.cliente_secret = self.leer.get("Credenciales", "client_secret")
+
     def canciones_top(self, termino: str):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='',
-                                                       client_secret='',
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.cliente_ID,
+                                                       client_secret=self.cliente_secret,
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
-        ranges = [termino]
 
-        # Imprimir las canciones top en nuestro rango de tiempo.
-        for sp_range in ranges:
-            print("Rango:", sp_range)
-            results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
-            for i, item in enumerate(results['items']):
-                print(i, item['name'], '//', item['artists'][0]['name'])
-            print()
-
+        results = sp.current_user_top_tracks(time_range=termino, limit=5)
+        
+        return results
 
 class Cliente:
     # LOGICA PRINCIPAL DEL PROGRAMA
-
     sq = SqlLite()
     sp = PerrotifyApp()
 
-    # ---------------INSERTAR USUARIOS---------------
-    # sq.insertar_usuario('Chuy')
-    # sq.insertar_usuario('Edson')
-    # sq.insertar_usuario('Mario')
-
-    # ---------------DEBUG: SELECT USUARIOS---------------
-    # sq.seleccionar_usuario(1)
-    # sq.seleccionar_usuario(2)
-    # sq.seleccionar_usuario(3)
-
-    # ---------------INSERT CANCIONES---------------
-    sq.insertar_canciones(1, 'Genitallica - The Unforgiven')
-    sq.insertar_canciones(1, 'Deathgasm - The Blood Spitter')
-    sq.insertar_canciones(2, 'Bugs bunny - Perreo Hasta el Nucleo de la Tierra')
-    sq.insertar_canciones(2, 'Copper Maiden - The Number of God')
-    sq.insertar_canciones(3, 'Thangorodrim - Gil Estel')
-    sq.insertar_canciones(3, 'Elffor - Dra Sad III')
-
-    # ---------------DEBUG: SELECT CANCIONES POR IDUSUARIO---------------
-    sq.seleccionar_canciones_usuario(1)
-    sq.seleccionar_canciones_usuario(2)
-    sq.seleccionar_canciones_usuario(3)
-
-    # ---------------SPOTIPY API : CANCIONES TOP---------------
-    sp.canciones_top('long_term')
+    # Traer canciones top y crear clases Cancion con los datos traidos de la API.
+    rango = 'short_term'
+    results = sp.canciones_top(rango)
+    cancion = []
+    for i, item in enumerate(results['items']):
+        cancion.append(Cancion(item['name'], item['artists'][0]['name']))
+        print(cancion[i].__str__())
+    print()
 
 
 if __name__ == '__main__':

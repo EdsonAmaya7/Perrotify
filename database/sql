@@ -4,8 +4,32 @@ PRAGMA foreign_keys=on;
 UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='usuario';
 UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='cancion';
 
+delete from usuario
+delete from cancion
+
 select * from usuario
 select * from cancion
 
-delete from usuario
-delete from cancion
+#AGREGAR DATOS DE MANERA MANUAL A LA BD
+# ---------------INSERTAR USUARIOS---------------
+    # sq.insertar_usuario('Chuy')
+    # sq.insertar_usuario('Edson')
+    # sq.insertar_usuario('Mario')
+
+    # ---------------DEBUG: SELECT USUARIOS---------------
+    # sq.seleccionar_usuario(1)
+    # sq.seleccionar_usuario(2)
+    # sq.seleccionar_usuario(3)
+
+    # ---------------INSERT CANCIONES---------------
+    # sq.insertar_canciones(1, 'Genitallica - The Unforgiven')
+    # sq.insertar_canciones(1, 'Deathgasm - The Blood Spitter')
+    # sq.insertar_canciones(2, 'Bugs bunny - Perreo Hasta el Nucleo de la Tierra')
+    # sq.insertar_canciones(2, 'Copper Maiden - The Number of God')
+    # sq.insertar_canciones(3, 'Thangorodrim - Gil Estel')
+    # sq.insertar_canciones(3, 'Elffor - Dra Sad III')
+
+    # ---------------DEBUG: SELECT CANCIONES POR IDUSUARIO---------------
+    # sq.seleccionar_canciones_usuario(1)
+    # sq.seleccionar_canciones_usuario(2)
+    # sq.seleccionar_canciones_usuario(3)
