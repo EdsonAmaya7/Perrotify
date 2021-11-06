@@ -1,0 +1,11 @@
+PRAGMA foreign_keys=off;
+PRAGMA foreign_keys=on;
+
+UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='usuario';
+UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='cancion';
+
+select * from usuario
+select * from cancion
+
+delete from usuario
+delete from cancion

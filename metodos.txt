@@ -1,0 +1,53 @@
+def canciones_top_termino_corto():
+        pass
+        # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
+        #                                                client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
+        #                                                redirect_uri='https://open.spotify.com/collection/tracks',
+        #                                                scope='user-top-read'))
+
+        # ranges = ['short_term']
+
+        # for sp_range in ranges:
+        #     print("range:", sp_range)
+        #     results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
+        #     for i, item in enumerate(results['items']):
+        #         print(i, item['name'], '//', item['artists'][0]['name'])
+        #     print()
+
+
+
+def canciones_top_termino_medio():
+        pass
+        #CODIGO PARA TRAER TOP TRACKS MEDIUM RANGE
+
+        # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
+        #                                                client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
+        #                                                redirect_uri='https://open.spotify.com/collection/tracks',
+        #                                                scope='user-top-read'))
+
+        # ranges = ['short_term']
+
+        # for sp_range in ranges:
+        #     print("range:", sp_range)
+        #     results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
+        #     for i, item in enumerate(results['items']):
+        #         print(i, item['name'], '//', item['artists'][0]['name'])
+        #     print()
+
+
+
+#CODIGO PARA TRAER TOP TRACKS LONG RANGE
+
+        # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
+        #                                                client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
+        #                                                redirect_uri='https://open.spotify.com/collection/tracks',
+        #                                                scope='user-top-read'))
+
+        # ranges = ['short_term']
+
+        # for sp_range in ranges:
+        #     print("range:", sp_range)
+        #     results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
+        #     for i, item in enumerate(results['items']):
+        #         print(i, item['name'], '//', item['artists'][0]['name'])
+        #     print()                
