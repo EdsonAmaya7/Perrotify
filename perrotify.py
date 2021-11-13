@@ -5,6 +5,12 @@ import sqlite3
 from interfaces import *
 import configparser
 
+# insert(cancion):
+#     cancion.nombre
+#     cancion.artista
+#     insert
+
+# canciones_top -> list[cancion]
 
 class Usuario:
 
@@ -41,7 +47,10 @@ class SqlLite(IBaseDatos):
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
 
-    def insertar_canciones(self, id_usuario, cancion_nombre, artista):
+    def insertar_canciones(self, cancion : Cancion):
+        id_usuario = 1#Falta confirmar
+        cancion_nombre = cancion.get_nombre_cancion()
+        artista = cancion.get_artista()
         # Ejecutar query INSERT pasandole 'id_usuario' y 'cancion_nombre' como argumento.
         self.cursor.execute("insert into cancion(idUsuario, nombreCancion, artista) values ({}, '{}', '{}')".format(
             id_usuario, cancion_nombre, artista))
@@ -77,17 +86,26 @@ class PerrotifyApp(IPerrotify):
         self.cliente_ID = self.leer.get("Credenciales", "client_id")
         self.cliente_secret = self.leer.get("Credenciales", "client_secret")
 
-    def canciones_top(self, termino: str):
+    def canciones_top(self):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.cliente_ID,
                                                        client_secret=self.cliente_secret,
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
+        ranges = ['short_term']
+        canciones = []
 
-        results = sp.current_user_top_tracks(time_range=termino, limit=5)
-        
-        return results
+        # Recorrer una lista de resultados de la API, y crear una lista de clase Cancion
+        for sp_range in ranges:
+            print("range:", sp_range)
+            results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
+            for i, item in enumerate(results['items']):
+                canciones.append(Cancion(item['name'], item['artists'][0]['name']))
+                print(canciones[i].__str__())
+            print()
+
+        return canciones
 
 class Cliente:
     # LOGICA PRINCIPAL DEL PROGRAMA
@@ -95,17 +113,13 @@ class Cliente:
     sp = PerrotifyApp()
 
     # Traer canciones top y crear clases Cancion con los datos traidos de la API.
-    rango = 'short_term'
-    results = sp.canciones_top(rango)
-    cancion = []
-    for i, item in enumerate(results['items']):
-        cancion.append(Cancion(item['name'], item['artists'][0]['name']))
-        print(cancion[i].__str__())
-    print()
+    sp.canciones_top()
 
+    
 
 if __name__ == '__main__':
     app = Cliente()
+
 
 
 # ---------------PROXIMO A IMPLEMENTAR---------------
