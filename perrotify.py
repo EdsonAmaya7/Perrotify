@@ -105,7 +105,13 @@ class PerrotifyApp(IPerrotify):
                 print(canciones[i].__str__())
             print()
 
+<<<<<<< HEAD
         return canciones
+=======
+        results = sp.current_user_top_tracks(time_range=termino, limit=5)
+
+        return results
+>>>>>>> 07e6f290c4179dca1fec573909f82b6a1b94ceaf
 
 class Cliente:
     # LOGICA PRINCIPAL DEL PROGRAMA
