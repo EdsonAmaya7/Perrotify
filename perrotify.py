@@ -136,7 +136,7 @@ class Cliente:
                 print("\n---Seleccionar Canciones---")
                 #Imprimir canciones top traidas desde la DB.
                 sq.seleccionar_canciones()
-                 
+
 
             elif ans=="3":
                 print("\n---Ordenar por Artista---")

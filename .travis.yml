@@ -1,0 +1,14 @@
+language: python
+python:
+  -3.9
+
+services:
+  -sql
+
+# env:
+# services:
+#   -
+
+script:
+  -python3 pruebas_unitarias.py
+  -python3 prueba_integracion.py
