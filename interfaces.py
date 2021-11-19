@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 class Cancion:
-    
+
     def __init__(self, nombre_cancion, artista) -> None:
         self.nombre_cancion = nombre_cancion
         self.artista = artista
