@@ -46,6 +46,9 @@ class IBaseDatos(ABC):
         pass
 
     @abstractmethod
-    def seleccionar_canciones_usuario(self, id_usuario):
-
+    def seleccionar_canciones(self):
         pass
+
+    @abstractmethod
+    def filtrar_artistas(self, artista):
+        pass 

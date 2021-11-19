@@ -5,13 +5,6 @@ import sqlite3
 from interfaces import *
 import configparser
 
-# insert(cancion):
-#     cancion.nombre
-#     cancion.artista
-#     insert
-
-# canciones_top -> list[cancion]
-
 class Usuario:
 
     def __init__(self, usuario) -> None:
@@ -48,12 +41,10 @@ class SqlLite(IBaseDatos):
         self.mi_conexion.commit()
 
     def insertar_canciones(self, cancion : Cancion):
-        id_usuario = 1#Falta confirmar
         cancion_nombre = cancion.get_nombre_cancion()
         artista = cancion.get_artista()
         # Ejecutar query INSERT pasandole 'id_usuario' y 'cancion_nombre' como argumento.
-        self.cursor.execute("insert into cancion(idUsuario, nombreCancion, artista) values ({}, '{}', '{}')".format(
-            id_usuario, cancion_nombre, artista))
+        self.cursor.execute('insert into cancion(nombreCancion, artista) values ("{}", "{}")'.format(cancion_nombre, artista))
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
 
@@ -66,14 +57,21 @@ class SqlLite(IBaseDatos):
         # Mostrar nuestro SELECT
         print(datos)
 
-    def seleccionar_canciones_usuario(self, id_usuario):
-        # Ejecutar query SELECT pasandole 'id_usuario' como argumento.
-        self.cursor.execute(
-            "select u.nombre, c.nombreCancion, c.artista from usuario as u inner join cancion as c on u.idUsuario = c.idUsuario where c.idUsuario = {}".format(id_usuario))
+    def seleccionar_canciones(self):
+        # Ejecutar query SELECT
+        self.cursor.execute("select * from cancion")
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
-        # Mostrar nuestro SELECT
-        print(datos)
+        for dato in datos:
+            print(dato)
+
+    def filtrar_artistas(self, artista):
+        # Ejecutar query SELECT
+        self.cursor.execute("select * from cancion WHERE artista = '{}'".format(artista))
+        # Recuperar nuestro SELECT en la variable datos
+        datos = self.cursor.fetchall()
+        for dato in datos:
+            print(dato)
 
 
 class PerrotifyApp(IPerrotify):
@@ -88,12 +86,12 @@ class PerrotifyApp(IPerrotify):
 
     def canciones_top(self):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.cliente_ID,
-                                                       client_secret=self.cliente_secret,
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
+                                                       client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
-        ranges = ['short_term']
+        ranges = ['medium_term']
         canciones = []
 
         # Recorrer una lista de resultados de la API, y crear una lista de clase Cancion
@@ -105,27 +103,57 @@ class PerrotifyApp(IPerrotify):
                 print(canciones[i].__str__())
             print()
 
-<<<<<<< HEAD
         return canciones
-=======
-        results = sp.current_user_top_tracks(time_range=termino, limit=5)
-
-        return results
->>>>>>> 07e6f290c4179dca1fec573909f82b6a1b94ceaf
 
 class Cliente:
-    # LOGICA PRINCIPAL DEL PROGRAMA
-    sq = SqlLite()
-    sp = PerrotifyApp()
 
-    # Traer canciones top y crear clases Cancion con los datos traidos de la API.
-    sp.canciones_top()
+    def menu(self):
+        sq = SqlLite()
+        sp = PerrotifyApp()
+        print()
+        ans=True
+        while ans:
+            print('----Menu----'.center(100,"="))
+            print("""\n
+                                                ---Opciones---
+        1.- Canciones Top
 
-    
+        --- Consutas de la BD ---
+
+        2.- Seleccionar Canciones
+        3.- Ordenar por Artista
+        0.- --- Exit ---
+        """)
+            ans=input("Ingresa la opcion que deseas: ")
+            if ans=="1":
+                print("\n---Canciones Top---")
+                # Traer canciones top y crear clases Cancion con los datos traidos de la API.
+                canciones = sp.canciones_top()
+                for cancion in canciones:
+                    sq.insertar_canciones(cancion)
+
+            elif ans=="2":
+                print("\n---Seleccionar Canciones---")
+                #Imprimir canciones top traidas desde la DB.
+                sq.seleccionar_canciones()
+                 
+
+            elif ans=="3":
+                print("\n---Ordenar por Artista---")
+                # Pedir entrada
+                artista = input("Escribe el artista: ")
+                #Imprimir cancion por artista
+                sq.filtrar_artistas(artista)
+
+            elif ans=="0":
+                print("\n Adios!!!")
+                ans = None
+            else:
+                print("\n Opcion no valida reintente otro valor")
 
 if __name__ == '__main__':
     app = Cliente()
-
+    app.menu()
 
 
 # ---------------PROXIMO A IMPLEMENTAR---------------
