@@ -16,6 +16,6 @@ before_script: pip install spotipy
 # install:
 
 script:
-  - python perrotify.py
+  - python hola.py
   # -python3 pruebas_unitarias.py
   # -python3 prueba_integracion.py
