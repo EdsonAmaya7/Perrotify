@@ -1,12 +1,9 @@
 language: python
 python:
-  -"3"
+  -3.8
 
 
 
-# env:
-# services:
-#   -
 addons:
   apt:
     packages:
