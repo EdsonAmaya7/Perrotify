@@ -62,8 +62,13 @@ class SqlLite(IBaseDatos):
         self.cursor.execute("select * from cancion")
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
+        #Var para concatenar resultados
+        canciones = []
         for dato in datos:
-            print(dato)
+            canciones.append(Cancion(dato[1], dato[2]))
+
+        return canciones;
+            
 
     def filtrar_artistas(self, artista):
         # Ejecutar query SELECT
@@ -80,14 +85,13 @@ class PerrotifyApp(IPerrotify):
         # Leer credenciales del archivo credenciales.ini
         self.leer = configparser.ConfigParser()
         self.leer.read("credenciales.ini")
-
         self.cliente_ID = self.leer.get("Credenciales", "client_id")
         self.cliente_secret = self.leer.get("Credenciales", "client_secret")
 
     def canciones_top(self):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=self.cliente_ID,
-                                                       client_secret=self.cliente_secret,
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
+                                                       client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
@@ -110,8 +114,9 @@ class Cliente:
     def menu(self):
         sq = SqlLite()
         sp = PerrotifyApp()
-        print()
+
         ans=True
+
         while ans:
             print('----Menu----'.center(100,"="))
             print("""\n
@@ -135,8 +140,9 @@ class Cliente:
             elif ans=="2":
                 print("\n---Seleccionar Canciones---")
                 #Imprimir canciones top traidas desde la DB.
-                sq.seleccionar_canciones()
-
+                canciones = sq.seleccionar_canciones()
+                for cancion in canciones:
+                    print(cancion.__str__())
 
             elif ans=="3":
                 print("\n---Ordenar por Artista---")
