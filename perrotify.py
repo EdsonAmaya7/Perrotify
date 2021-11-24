@@ -83,6 +83,9 @@ class PerrotifyApp(IPerrotify):
 
     def __init__(self) -> None:
         # Leer credenciales del archivo credenciales.ini
+        # self.leer = configparser.ConfigParser()
+        # self.leer.read("credenciales.ini")
+
         self.leer = configparser.ConfigParser()
         self.leer.read("credenciales.ini")
         self.cliente_ID = self.leer.get("Credenciales", "client_id")

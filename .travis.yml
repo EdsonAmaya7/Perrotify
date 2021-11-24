@@ -13,7 +13,6 @@
 
 # before_script: pip install spotipy
 
-
 # script:
 #   - pytest pruebas_unitarias_perrotify.py
 #   # -python3 pruebas_unitarias.py
@@ -31,13 +30,13 @@ addons:
     packages:
     - unixodbc-dev
     - python-mysqldb
+
 install:
   - pip install pyodbc
   - pip install requests
 before_script: pip install spotipy
-
 script:
+  - export client_id=$client_id
+  - export client_secret=$client_secret
   - python3 pruebas_unitarias_perrotify.py
   - pytest pruebas_unitarias_perrotify.py
-
-
