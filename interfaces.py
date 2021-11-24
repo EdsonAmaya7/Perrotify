@@ -26,7 +26,7 @@ class Cancion:
 class IPerrotify(ABC):
 
     @abstractmethod
-    def canciones_top(termino : str) -> str[list[Cancion]]:
+    def canciones_top(termino : str) -> list:
         pass
 
     def artistas_top(termino : str) -> list:
