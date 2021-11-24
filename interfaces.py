@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
 
 class Cancion:
-    
+
     def __init__(self, nombre_cancion, artista) -> None:
         self.nombre_cancion = nombre_cancion
         self.artista = artista
 
     def set_nombre_cancion(self, nombre_cancion):
         self.nombre_cancion = nombre_cancion
+
+
 
     def get_nombre_cancion(self):
         return self.nombre_cancion
@@ -24,7 +26,7 @@ class Cancion:
 class IPerrotify(ABC):
 
     @abstractmethod
-    def canciones_top(termino : str) -> list[Cancion]:
+    def canciones_top(termino : str) -> list:
         pass
 
     def artistas_top(termino : str) -> list:

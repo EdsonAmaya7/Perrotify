@@ -2,7 +2,7 @@ from sqlite3.dbapi2 import Cursor
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import sqlite3
-from interfaces import *
+from interfaces import Cancion,IPerrotify,IBaseDatos
 import configparser
 
 class Usuario:
@@ -136,7 +136,7 @@ class Cliente:
                 print("\n---Seleccionar Canciones---")
                 #Imprimir canciones top traidas desde la DB.
                 sq.seleccionar_canciones()
-                 
+
 
             elif ans=="3":
                 print("\n---Ordenar por Artista---")

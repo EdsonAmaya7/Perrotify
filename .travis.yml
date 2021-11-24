@@ -1,0 +1,43 @@
+# language : python
+# python:
+#   - 3.8
+
+# addons:
+#   apt:
+#     packages:
+#       - python3-pip
+
+# before_install:
+# - sudo apt-get update
+# - sudo apt-get install python3
+
+# before_script: pip install spotipy
+
+
+# script:
+#   - pytest pruebas_unitarias_perrotify.py
+#   # -python3 pruebas_unitarias.py
+#   # -python3 prueba_integracion.py
+
+
+language : python
+python:
+  - 3.8
+
+services:
+  - mysql
+addons:
+  apt:
+    packages:
+    - unixodbc-dev
+    - python-mysqldb
+install:
+  - pip install pyodbc
+  - pip install requests
+before_script: pip install spotipy
+
+script:
+  - python3 pruebas_unitarias_perrotify.py
+  - pytest pruebas_unitarias_perrotify.py
+
+
