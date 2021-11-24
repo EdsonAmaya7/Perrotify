@@ -53,4 +53,4 @@ class IBaseDatos(ABC):
 
     @abstractmethod
     def filtrar_artistas(self, artista):
-        pass 
+        pass
