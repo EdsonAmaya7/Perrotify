@@ -3,7 +3,8 @@ import unittest
 from unittest import TestCase
 from unittest import mock
 from unittest.mock import mock_open, patch
-from perrotify import *
+from interfaces import Cancion
+from perrotify import Usuario,SqlLite,PerrotifyApp,Cliente
 
 
 class Perrotify(unittest.TestCase):

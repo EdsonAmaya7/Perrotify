@@ -2,7 +2,7 @@ from sqlite3.dbapi2 import Cursor
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import sqlite3
-from interfaces import *
+from interfaces import Cancion,IPerrotify,IBaseDatos
 import configparser
 
 class Usuario:

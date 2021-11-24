@@ -24,6 +24,8 @@ language : python
 python:
   - 3.8
 
+before_script: pip install spotipy
 
 script:
   - python3 pruebas_unitarias_perrotify.py
+  - pytest pruebas_unitarias_perrotify.py
