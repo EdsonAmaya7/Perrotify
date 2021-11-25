@@ -45,7 +45,7 @@ class Perrotify(unittest.TestCase):
             a += res.__str__() + '\n'
 
         self.assertEqual(a, 'Cancion: mock_cancion_1 // Artista: mock_artista_1\nCancion: mock_cancion_2 // Artista: mock_artista_1\nCancion: mock_cancion_3 // Artista: mock_artista_3\nCancion: mock_cancion_4 // Artista: mock_artista_4\nCancion: mock_cancion_5 // Artista: mock_artista_5\n')
-        
+
 
 if __name__ == '__main__':
     unittest.main()
