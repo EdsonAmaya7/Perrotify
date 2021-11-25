@@ -42,7 +42,7 @@ class SqlLite(IBaseDatos):
 
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
-            
+
 
     def insertar_canciones(self, cancion: Cancion):
         cancion_nombre = cancion.get_nombre_cancion()
@@ -85,8 +85,12 @@ class SqlLite(IBaseDatos):
             "select * from cancion WHERE artista = '{}'".format(artista))
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
+        canciones = []
         for dato in datos:
+            canciones.append(Cancion(dato[1], dato[2]))
             print(dato)
+
+        return canciones
 
 
 class PerrotifyApp(IPerrotify):

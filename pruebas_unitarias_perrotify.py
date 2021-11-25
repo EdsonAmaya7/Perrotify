@@ -49,14 +49,34 @@ class Perrotify(unittest.TestCase):
     @patch('perrotify.SqlLite.insertar_canciones')
     def test_insertar_canciones(self, mock_insertar_cancion):
         mock_insertar_cancion.return_value = "Exito"
-        
+
         # Crear instancia Cancion
         cancion = Cancion('Cancion_mock', 'Artista_mock')
         sq = SqlLite()
         # Llamar al metodo original
         resultado = sq.insertar_canciones(cancion)
         #Comprobar resultados
-        self.assertEqual(resultado, "Exito")        
+        self.assertEqual(resultado, "Exito")
+
+    @patch('perrotify.SqlLite.filtrar_artistas')
+    def test_filtrar_canciones(self, mock_filtrar_artistas):
+        canciones = []
+        canciones.append(Cancion("mock_cancion_1", "mock_artista_1"))
+        canciones.append(Cancion("mock_cancion_2", "mock_artista_1"))
+        canciones.append(Cancion("mock_cancion_3", "mock_artista_1"))
+        canciones.append(Cancion("mock_cancion_4", "mock_artista_1"))
+        canciones.append(Cancion("mock_cancion_5", "mock_artista_1"))
+        mock_filtrar_artistas.return_value = canciones
+
+        sq = SqlLite()
+
+        resultados = sq.filtrar_artistas('mock_artista_1')
+        a = ''
+        for res in resultados:
+            a += res.__str__() + '\n'
+
+        self.assertEqual(a, 'Cancion: mock_cancion_1 // Artista: mock_artista_1\nCancion: mock_cancion_2 // Artista: mock_artista_1\nCancion: mock_cancion_3 // Artista: mock_artista_1\nCancion: mock_cancion_4 // Artista: mock_artista_1\nCancion: mock_cancion_5 // Artista: mock_artista_1\n')
+
 
 if __name__ == '__main__':
     unittest.main()
