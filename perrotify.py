@@ -2,8 +2,9 @@ from sqlite3.dbapi2 import Cursor
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import sqlite3
-from interfaces import Cancion,IPerrotify,IBaseDatos
+from interfaces import Cancion, IPerrotify, IBaseDatos
 import configparser
+
 
 class Usuario:
 
@@ -23,6 +24,7 @@ class Usuario:
     def get_songs(self):
         return self.canciones
 
+
 class SqlLite(IBaseDatos):
 
     def __init__(self) -> None:
@@ -37,16 +39,24 @@ class SqlLite(IBaseDatos):
         # Ejecutar query INSERT pasandole 'nom' como argumento.
         self.cursor.execute(
             "insert into usuario(nombre) values ('{}')".format(nom))
+
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
+            
 
-    def insertar_canciones(self, cancion : Cancion):
+    def insertar_canciones(self, cancion: Cancion):
         cancion_nombre = cancion.get_nombre_cancion()
         artista = cancion.get_artista()
         # Ejecutar query INSERT pasandole 'id_usuario' y 'cancion_nombre' como argumento.
-        self.cursor.execute('insert into cancion(nombreCancion, artista) values ("{}", "{}")'.format(cancion_nombre, artista))
+        self.cursor.execute('insert into cancion(nombreCancion, artista) values ("{}", "{}")'.format(
+            cancion_nombre, artista))
         # Hacer un commit para que se guarden los cambios permanentemente.
-        self.mi_conexion.commit()
+        # Comprobar si se inserto
+        if (self.cursor.rowcount == 1):
+            self.mi_conexion.commit()
+            return "Exito"
+        else:
+            return "Fallo"
 
     def seleccionar_usuario(self, id_usuario):
         # Ejecutar query SELECT pasandole 'id_usuario' como argumento.
@@ -62,17 +72,17 @@ class SqlLite(IBaseDatos):
         self.cursor.execute("select * from cancion")
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
-        #Var para concatenar resultados
+        # Var para concatenar resultados
         canciones = []
         for dato in datos:
             canciones.append(Cancion(dato[1], dato[2]))
 
-        return canciones;
-            
+        return canciones
 
     def filtrar_artistas(self, artista):
         # Ejecutar query SELECT
-        self.cursor.execute("select * from cancion WHERE artista = '{}'".format(artista))
+        self.cursor.execute(
+            "select * from cancion WHERE artista = '{}'".format(artista))
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
         for dato in datos:
@@ -106,11 +116,13 @@ class PerrotifyApp(IPerrotify):
             print("range:", sp_range)
             results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
             for i, item in enumerate(results['items']):
-                canciones.append(Cancion(item['name'], item['artists'][0]['name']))
+                canciones.append(
+                    Cancion(item['name'], item['artists'][0]['name']))
                 print(canciones[i].__str__())
             print()
 
         return canciones
+
 
 class Cliente:
 
@@ -118,10 +130,10 @@ class Cliente:
         sq = SqlLite()
         sp = PerrotifyApp()
 
-        ans=True
+        ans = True
 
         while ans:
-            print('----Menu----'.center(100,"="))
+            print('----Menu----'.center(100, "="))
             print("""\n
                                                 ---Opciones---
         1.- Canciones Top
@@ -132,33 +144,34 @@ class Cliente:
         3.- Ordenar por Artista
         0.- --- Exit ---
         """)
-            ans=input("Ingresa la opcion que deseas: ")
-            if ans=="1":
+            ans = input("Ingresa la opcion que deseas: ")
+            if ans == "1":
                 print("\n---Canciones Top---")
                 # Traer canciones top y crear clases Cancion con los datos traidos de la API.
                 canciones = sp.canciones_top()
                 for cancion in canciones:
                     sq.insertar_canciones(cancion)
 
-            elif ans=="2":
+            elif ans == "2":
                 print("\n---Seleccionar Canciones---")
-                #Imprimir canciones top traidas desde la DB.
+                # Imprimir canciones top traidas desde la DB.
                 canciones = sq.seleccionar_canciones()
                 for cancion in canciones:
                     print(cancion.__str__())
 
-            elif ans=="3":
+            elif ans == "3":
                 print("\n---Ordenar por Artista---")
                 # Pedir entrada
                 artista = input("Escribe el artista: ")
-                #Imprimir cancion por artista
+                # Imprimir cancion por artista
                 sq.filtrar_artistas(artista)
 
-            elif ans=="0":
+            elif ans == "0":
                 print("\n Adios!!!")
                 ans = None
             else:
                 print("\n Opcion no valida reintente otro valor")
+
 
 if __name__ == '__main__':
     app = Cliente()
@@ -186,5 +199,5 @@ if __name__ == '__main__':
 
 # 2.- Cambiar el código para que funcione de acuerdo a lo que dijo ChioCode. (Complejidad: Medio)
 
-# 3.- Agregar el metodo artistas_top (o similar) en la interfaz IPerrotify, y agregar su lógica en la clase 
+# 3.- Agregar el metodo artistas_top (o similar) en la interfaz IPerrotify, y agregar su lógica en la clase
 # PerrotifyApp. (Complejidad: Medio)
