@@ -39,4 +39,5 @@ script:
   - export client_id=$client_id
   - export client_secret=$client_secret
   - python3 pruebas_unitarias_perrotify.py
+  - pytest pruebas_integracion_perrotify.py
   - pytest pruebas_unitarias_perrotify.py
