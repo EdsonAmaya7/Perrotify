@@ -93,9 +93,12 @@ class SqlLite(IBaseDatos):
             "select * from cancion WHERE artista = '{}'".format(artista))
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
+        canciones = []
         for dato in datos:
+            canciones.append(Cancion(dato[1], dato[2]))
             print(dato)
 
+        return canciones
 
 class PerrotifyApp(IPerrotify):
 
