@@ -42,7 +42,6 @@ class SqlLite(IBaseDatos):
 
         # Hacer un commit para que se guarden los cambios permanentemente.
         self.mi_conexion.commit()
-            
 
     def insertar_canciones(self, cancion: Cancion):
         cancion_nombre = cancion.get_nombre_cancion()
@@ -50,13 +49,17 @@ class SqlLite(IBaseDatos):
         # Ejecutar query INSERT pasandole 'id_usuario' y 'cancion_nombre' como argumento.
         self.cursor.execute('insert into cancion(nombreCancion, artista) values ("{}", "{}")'.format(
             cancion_nombre, artista))
+
         # Hacer un commit para que se guarden los cambios permanentemente.
         # Comprobar si se inserto
-        if (self.cursor.rowcount == 1):
-            self.mi_conexion.commit()
-            return "Exito"
+        if not isinstance(cancion_nombre, int):
+            if (self.cursor.rowcount == 1):
+                self.mi_conexion.commit()
+                return "Exito"
+            else:
+                return "Fallo"
         else:
-            return "Fallo"
+            return "El nombre del artista tiene que ser tipo string"
 
     def seleccionar_usuario(self, id_usuario):
         # Ejecutar query SELECT pasandole 'id_usuario' como argumento.
@@ -73,11 +76,16 @@ class SqlLite(IBaseDatos):
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
         # Var para concatenar resultados
-        canciones = []
-        for dato in datos:
-            canciones.append(Cancion(dato[1], dato[2]))
-
-        return canciones
+        if (datos):
+            canciones = []
+            for dato in datos:
+                if (not isinstance(dato, str)):
+                    canciones.append(Cancion(dato[1], dato[2]))
+                else:
+                    return "Solo se aceptan strings como parametros"
+            return canciones
+        else:
+            return "Fallo"
 
     def filtrar_artistas(self, artista):
         # Ejecutar query SELECT
@@ -101,27 +109,30 @@ class PerrotifyApp(IPerrotify):
         self.cliente_ID = self.leer.get("Credenciales", "client_id")
         self.cliente_secret = self.leer.get("Credenciales", "client_secret")
 
-    def canciones_top(self):
+    def canciones_top(self, range):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
                                                        client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
-        ranges = ['medium_term']
-        canciones = []
+        if (range == 'short_term' or range == 'medium_term' or range == 'long_term'):
+            ranges = [range]
+            canciones = []
+        else:
+            return "Rango no valido, inserte 'short_term', 'medium_term', 'long_term'"
 
         # Recorrer una lista de resultados de la API, y crear una lista de clase Cancion
         for sp_range in ranges:
             print("range:", sp_range)
             results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
-            for i, item in enumerate(results['items']):
-                canciones.append(
-                    Cancion(item['name'], item['artists'][0]['name']))
-                print(canciones[i].__str__())
-            print()
-
-        return canciones
+            if (results):
+                for i, item in enumerate(results['items']):
+                    canciones.append(
+                        Cancion(item['name'], item['artists'][0]['name']))
+                return canciones
+            else:
+                return "Datos no recolectados aaah que rabia"
 
 
 class Cliente:
@@ -148,9 +159,10 @@ class Cliente:
             if ans == "1":
                 print("\n---Canciones Top---")
                 # Traer canciones top y crear clases Cancion con los datos traidos de la API.
-                canciones = sp.canciones_top()
-                for cancion in canciones:
-                    sq.insertar_canciones(cancion)
+                canciones = sp.canciones_top('medium_termss')
+                if (isinstance(canciones, list)):
+                    for cancion in canciones:
+                        sq.insertar_canciones(cancion)
 
             elif ans == "2":
                 print("\n---Seleccionar Canciones---")
