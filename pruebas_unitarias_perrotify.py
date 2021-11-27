@@ -1,97 +1,64 @@
-import builtins
 import unittest
 from unittest import TestCase
-from unittest import mock
-from unittest.mock import mock_open, patch
-from interfaces import Cancion
-from perrotify import Usuario, SqlLite, PerrotifyApp, Cliente
-
+from unittest.mock import MagicMock
+from unittest.mock import  patch
+from interfaces import *
+from perrotify import *
 
 class Perrotify(unittest.TestCase):
-    @patch('perrotify.PerrotifyApp.canciones_top')
-    def test_llamando_a_la_api_exito(self, mock_canciones_top):
-        canciones = []
-        canciones.append(Cancion('mock_cancion_1', 'mock_artista_1'))
-        canciones.append(Cancion('mock_cancion_2', 'mock_artista_1'))
-        canciones.append(Cancion('mock_cancion_3', 'mock_artista_3'))
-        canciones.append(Cancion('mock_cancion_4', 'mock_artista_4'))
-        canciones.append(Cancion('mock_cancion_5', 'mock_artista_5'))
-        mock_canciones_top.return_value = canciones
 
-        app = PerrotifyApp()
+    def test_seleccionar_canciones(self):
+        # Creamos nuestro patch a nuestra base de datos
+        with patch('perrotify.sqlite3') as mocksql:
+            # Hacemos que el fetchall nos regrese canciones
+            mocksql.connect().cursor().fetchall.return_value = [(0, 'Cancion_mock0', 'Artista_mock0'), (1, 'Cancion_mock1', 'Artista_mock1'), (2, 'Cancion_mock2', 'Artista_mock2')]
+            # Creamos una instancia de SqlLite() donde se encuentra nuestro metodo seleccionar_usuario
+            sql = SqlLite()
+            # Llamamos a nuestro metodo seleccionar canciones, el cual nos deberia de traer nuestras
+            # canciones mockeadas
+            canciones = sql.seleccionar_canciones()
+            # Comprobamos que cada cancion de nuestro select sea igual a nuestra salida esperada
+            for i, cancion in enumerate(canciones):
+                cancion_actual = cancion.__str__()
+                self.assertEqual(cancion_actual, 'Cancion: Cancion_mock{} // Artista: Artista_mock{}'.format(i, i))
 
-        resultados = app.canciones_top('medium_term')
-        a = ''
-        for res in resultados:
-            a += res.__str__() + '\n'
+    def test_canciones_top(self):
+        # Creamos nuestro patch de nuestra API, especificamente del curret_user_top_tracks, que se encarga de traernos nuestras canciones top de Spotify
+        with patch('perrotify.spotipy.Spotify.current_user_top_tracks') as mockSpotipy:
+            # Hacemos que solo nos regrese 2 canciones para nuestra prueba
+            mockSpotipy.return_value = {'items': [
+            {'artists': [{'name': 'Boney M.'}],'name': 'Ma Baker'}, 
+            {'artists': [{'name': 'Iron Maiden'}],'name': 'The Trooper'}
+            ]}
+            # Creamos una instancia de PerrotifyApp() donde se encuentra nuestro metodo canciones_top
+            app = PerrotifyApp()
+            # Llamamos a canciones_top que este metodo nos regresa una lista de tipo Cancion, ahi es donde tambien se hace el llamado a nuestra api, y las almacenamos en una variable canciones
+            canciones = app.canciones_top()
+            # Creamos nuestras comparaciones, estos sera con lo que nuestra salida se comparara
+            cancion_comparar = ['Ma Baker', 'The Trooper']
+            artista_comparar = ['Boney M.', 'Iron Maiden']
+            # Comprobamos que cada elemento la lista de tipo Cancion que nos regresa nuestro metodo canciones_top sea igual a nuestras comparaciones anteriores
+            for i, cancion in enumerate(canciones):
+                cancion_actual = cancion.__str__()
+                self.assertEqual(cancion_actual, 'Cancion: {} // Artista: {}'.format(cancion_comparar[i], artista_comparar[i]))
 
-        self.assertEqual(a, 'Cancion: mock_cancion_1 // Artista: mock_artista_1\nCancion: mock_cancion_2 // Artista: mock_artista_1\nCancion: mock_cancion_3 // Artista: mock_artista_3\nCancion: mock_cancion_4 // Artista: mock_artista_4\nCancion: mock_cancion_5 // Artista: mock_artista_5\n')
+    def test_filtrar_canciones(self):
+        # Creamos nuestro patch a nuestra base de datos
+        with patch('perrotify.sqlite3') as mocksql:
+            # Hacemos que el fetchall nos regrese canciones
+            mocksql.connect().cursor().execute.return_value = [(0, 'Cancion_mock0', 'Artista_mock0'), (1, 'Cancion_mock1', 'Artista_mock1'), (2, 'Cancion_mock2', 'Artista_mock2')]
+            # Creamos una instancia de SqlLite() donde se encuentra nuestro metodo filtar_canciones
+            sql = SqlLite()
+            # Llamamos a nuestro metodo filtrar canciones, el cual nos deberia de traer nuestras
+            # canciones mockeadas
+            canciones = sql.filtrar_artistas('Artista_mock0')
+            # Comprobamos que cada cancion de nuestro select where sea igual a nuestra salida esperada
+            for i, cancion in enumerate(canciones):
+                cancion_actual = cancion.__str__()
+                self.assertEqual(cancion_actual, 'Cancion: Cancion_mock{} // Artista: Artista_mock{}'.format(i, i))
+                
 
-    def test_llamando_a_la_api_fallo(self):
-        app = PerrotifyApp()
 
-        resultado = app.canciones_top('termino_corto')
-
-        self.assertEqual(resultado, "Rango no valido, inserte 'short_term', 'medium_term', 'long_term'")
-
-    @patch('perrotify.SqlLite.seleccionar_canciones')
-    def test_seleccionar_canciones_exito(self, mock_seleccionar_canciones):
-        canciones = []
-        canciones.append(Cancion('mock_cancion_1', 'mock_artista_1'))
-        canciones.append(Cancion('mock_cancion_2', 'mock_artista_1'))
-        canciones.append(Cancion('mock_cancion_3', 'mock_artista_3'))
-        canciones.append(Cancion('mock_cancion_4', 'mock_artista_4'))
-        canciones.append(Cancion('mock_cancion_5', 'mock_artista_5'))
-        mock_seleccionar_canciones.return_value = canciones
-
-        sq = SqlLite()
-
-        resultados = sq.seleccionar_canciones()
-        a = ''
-        for res in resultados:
-            a += res.__str__() + '\n'
-
-        self.assertEqual(a, 'Cancion: mock_cancion_1 // Artista: mock_artista_1\nCancion: mock_cancion_2 // Artista: mock_artista_1\nCancion: mock_cancion_3 // Artista: mock_artista_3\nCancion: mock_cancion_4 // Artista: mock_artista_4\nCancion: mock_cancion_5 // Artista: mock_artista_5\n')
-
-    @patch('perrotify.SqlLite.seleccionar_canciones')
-    def test_seleccionar_canciones_fallo(self, mock_seleccionar_canciones):
-        canciones = []
-        canciones.append(Cancion(1, 'mock_artista_1'))
-        canciones.append(Cancion('mock_cancion_2', 'mock_artista_1'))
-        canciones.append(Cancion('mock_cancion_3', 'mock_artista_3'))
-        canciones.append(Cancion('mock_cancion_4', 'mock_artista_4'))
-        canciones.append(Cancion('mock_cancion_5', 'mock_artista_5'))
-        mock_seleccionar_canciones.return_value = "Solo se aceptan strings como parametros"
-        valor_esperado = 'Solo se aceptan strings como parametros'
-
-        # Crear instancia SqlLite
-        sq = SqlLite()
-        # Guardar mi resultado
-        resultados = sq.seleccionar_canciones()
-        # Comprobar resultados
-        self.assertEqual(resultados, valor_esperado)
-
-    @patch('perrotify.SqlLite.insertar_canciones')
-    def test_insertar_canciones_exito(self, mock_insertar_cancion):
-        mock_insertar_cancion.return_value = "Exito"
-        # Crear instancia Cancion
-        cancion = Cancion('Cancion_mock', 'Artista_mock')
-        sq = SqlLite()
-        # Llamar al metodo original
-        resultado = sq.insertar_canciones(cancion)
-        # Comprobar resultados
-        self.assertEqual(resultado, "Exito")
-
-    def test_insertar_canciones_fallo(self):
-        # Crear instancia Cancion
-        cancion = Cancion(2, 'Artista')
-        sq = SqlLite()
-        # Llamar al metodo original
-        resultado = sq.insertar_canciones(cancion)
-        print(resultado)
-        # Comprobar resultados
-        self.assertEqual(
-            resultado, "El nombre del artista tiene que ser tipo string")
 
 
 if __name__ == '__main__':

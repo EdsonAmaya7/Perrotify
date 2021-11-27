@@ -1,4 +1,3 @@
-from sqlite3.dbapi2 import Cursor
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import sqlite3
@@ -32,8 +31,6 @@ class SqlLite(IBaseDatos):
         self.mi_conexion = sqlite3.connect("database/spotify.db")
         # Declarar nuestro cursor, para hacer queries.
         self.cursor = self.mi_conexion.cursor()
-        # Imprimir un mensaje de exito.
-        print('-----------------Conectado exitosamente-----------------')
 
     def insertar_usuario(self, nom):
         # Ejecutar query INSERT pasandole 'nom' como argumento.
@@ -76,16 +73,10 @@ class SqlLite(IBaseDatos):
         # Recuperar nuestro SELECT en la variable datos
         datos = self.cursor.fetchall()
         # Var para concatenar resultados
-        if (datos):
-            canciones = []
-            for dato in datos:
-                if (not isinstance(dato, str)):
-                    canciones.append(Cancion(dato[1], dato[2]))
-                else:
-                    return "Solo se aceptan strings como parametros"
-            return canciones
-        else:
-            return "Fallo"
+        canciones = []
+        for dato in datos:
+            canciones.append(Cancion(dato[1], dato[2]))
+        return canciones
 
     def filtrar_artistas(self, artista):
         # Ejecutar query SELECT
@@ -96,7 +87,6 @@ class SqlLite(IBaseDatos):
         canciones = []
         for dato in datos:
             canciones.append(Cancion(dato[1], dato[2]))
-            print(dato)
 
         return canciones
 
@@ -112,23 +102,21 @@ class PerrotifyApp(IPerrotify):
         self.cliente_ID = self.leer.get("Credenciales", "client_id")
         self.cliente_secret = self.leer.get("Credenciales", "client_secret")
 
-    def canciones_top(self, range):
+    def canciones_top(self):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
                                                        client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
-        if (range == 'short_term' or range == 'medium_term' or range == 'long_term'):
-            ranges = [range]
-            canciones = []
-        else:
-            return "Rango no valido, inserte 'short_term', 'medium_term', 'long_term'"
+        ranges = ['medium_term']
+        canciones = []
 
         # Recorrer una lista de resultados de la API, y crear una lista de clase Cancion
         for sp_range in ranges:
-            print("range:", sp_range)
+            # print("range:", sp_range)
             results = sp.current_user_top_tracks(time_range=sp_range, limit=50)
+            # print("RESULTADOS AAAAAAAAAAAAAAAAAA: ", results)
             if (results):
                 for i, item in enumerate(results['items']):
                     canciones.append(
@@ -162,7 +150,7 @@ class Cliente:
             if ans == "1":
                 print("\n---Canciones Top---")
                 # Traer canciones top y crear clases Cancion con los datos traidos de la API.
-                canciones = sp.canciones_top('medium_termss')
+                canciones = sp.canciones_top('medium_term')
                 if (isinstance(canciones, list)):
                     for cancion in canciones:
                         sq.insertar_canciones(cancion)
