@@ -31,7 +31,7 @@ class PerrotifyIntegration(unittest.TestCase):
     def test_seleccionar_canciones_con_insertar_cancion(self, mock_seleccionar_canciones):
         canciones = []
         canciones.append(Cancion('mock_cancion_1', 'mock_artista_1'))
-        mock_seleccionar_canciones = canciones
+        mock_seleccionar_canciones.return_value = canciones
         sq = SqlLite()
 
         resultados = sq.seleccionar_canciones()
@@ -42,7 +42,9 @@ class PerrotifyIntegration(unittest.TestCase):
 
         # self.assertSetEqual(a, mock_seleccionar_canciones.return_value)
 
-
+#---------------------------------------------------------------------------
+#                            esto ya estaba comentado
+#---------------------------------------------------------------------------
     # @patch('perrotify.PerrotifyApp.canciones_top')
     # def test_canciones_top(self,mock_canciones_top):
     #     mock_canciones_top.return_value = 'Cancion: Cancion_mock // Artista: Artista_mock\nCancion: Cancion_mock // Artista: Artista_mock\nCancion: Cancion_mock // Artista: Artista_mock\n'
@@ -55,6 +57,72 @@ class PerrotifyIntegration(unittest.TestCase):
     #         a += result.__str__() + '\n'
 
     #     self.assertEqual(a,mock_canciones_top.return_value)
+
+
+
+#---------------------------------------------------------------------------
+#                            prueba integraicion con dos reales
+#---------------------------------------------------------------------------
+    def test_filtrar_artista(self):
+        artista = 'ZZ Top'
+        sq = SqlLite()
+        resultados = sq.filtrar_artistas(artista)
+        a = ''
+        for res in resultados:
+            a += res.__str__()
+        self.assertEqual(a, "Cancion: s // Artista: ZZ Top")
+
+#===========================================================================
+#                            prueba integracion 1 real
+#===========================================================================
+
+    def test_filtrar_artista(self):
+        with patch('perrotify.SqlLite.filtrar_artistas',return_value = 'Cancion: s // Artista: ZZ Top'):
+            artista = 'ZZ Top'
+            sq = SqlLite()
+            resultados = sq.filtrar_artistas(artista)
+            a = ''
+            for res in resultados:
+                a += res.__str__()
+            print('a',a)
+            self.assertEqual(a, "Cancion: s // Artista: ZZ Top")
+
+#===========================================================================
+#                            bd
+#===========================================================================
+
+    def test_canciones_top(self):
+        with patch('perrotify.spotipy.Spotify.current_user_top_tracks') as mockSpotipy:
+            # Hacemos que solo nos regrese 2 canciones para nuestra prueba
+            mockSpotipy.return_value = {'items': [
+            {'artists': [{'name': 'Boney M.'}],'name': 'Ma Baker'},
+            {'artists': [{'name': 'Iron Maiden'}],'name': 'The Trooper'}
+            ]}
+
+            app = PerrotifyApp()
+
+            canciones = app.canciones_top()
+            cancion_comparar = ['Ma Baker', 'The Trooper']
+            artista_comparar = ['Boney M.', 'Iron Maiden']
+            for i, cancion in enumerate(canciones):
+                cancion_actual = cancion.__str__()
+                self.assertEqual(cancion_actual, 'Cancion: {} // Artista: {}'.format(cancion_comparar[i], artista_comparar[i]))
+
+#===========================================================================
+
+    @patch("builtins.input")
+    def test_canciones_top(self,mock_input):
+
+    # Hacemos que solo nos regrese 2 canciones para nuestra prueba
+        mock_input.return_value = 2
+        salida_esperada = 2
+        app = PerrotifyApp()
+        canciones = app.canciones_top()
+        cancion_comparar = ['Ma Baker', 'The Trooper']
+        artista_comparar = ['Boney M.', 'Iron Maiden']
+        for i, cancion in enumerate(canciones):
+            cancion_actual = cancion.__str__()
+            self.assertEqual(cancion_actual, 'Cancion: {} // Artista: {}'.format(cancion_comparar[i], artista_comparar[i]))
 
 
 if __name__ == '__main__':

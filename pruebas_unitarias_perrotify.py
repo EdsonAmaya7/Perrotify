@@ -56,9 +56,6 @@ class Perrotify(unittest.TestCase):
             for i, cancion in enumerate(canciones):
                 cancion_actual = cancion.__str__()
                 self.assertEqual(cancion_actual, 'Cancion: Cancion_mock{} // Artista: Artista_mock{}'.format(i, i))
-                
-
-
 
 
 if __name__ == '__main__':
