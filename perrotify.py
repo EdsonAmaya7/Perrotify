@@ -104,8 +104,8 @@ class PerrotifyApp(IPerrotify):
 
     def canciones_top(self):
         # Usar client_id, client_secret, redirect_uri, scope para conectarnos a nuestra cuenta de desarrollador.
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='231ff96968584dfa9078830f4b75ccec',
-                                                       client_secret='4250cbcc6f1948d18b8050c63a2e96cb',
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='',
+                                                       client_secret='',
                                                        redirect_uri='https://open.spotify.com/collection/tracks',
                                                        scope='user-top-read'))
 
